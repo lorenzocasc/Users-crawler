@@ -1,3 +1,4 @@
+import time
 import requests
 from bs4 import BeautifulSoup
 from gpt import GPT
@@ -6,7 +7,7 @@ from gpt import GPT
 api_key = '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'
 
 # Create a GPT object
-chatGpt = GPT(api_key=api_key, engine='gpt-3.5-turbo')
+chatGpt = GPT(api_key=api_key, engine='gpt-4')
 
 # Chatgpt prompt to be used
 prompt = ("Generate birth sex(from username), user type and associated need, with this format: Sex: [Male] or ["
@@ -22,13 +23,14 @@ gptResponse = []
 # Text passed to chatgpt
 requestText = []
 
+
 # save the name of the user
 def save_name(postPage):
     username_element = postPage.find('div', class_='username')
     username = username_element.find('a')
     if username:
         username = username.text.strip()
-        requestText.append("The username is: " + username)
+        requestText.append("Username: " + username + "\n")
         print("Username:", username)
 
 
@@ -37,8 +39,9 @@ def saveCityOfProvenance(postPage):
     cityOfProvenance_element = postPage.find('div', class_='location')
     if cityOfProvenance_element:
         cityOfProvenance = cityOfProvenance_element.text.strip()
-        requestText.append("The city of provenience is: " + cityOfProvenance)
-        print("City of Provenance:", cityOfProvenance)
+        requestText.append("City of provenience: " + cityOfProvenance + "\n")
+        print("City of Provenance: ", cityOfProvenance)
+
 
 # Http request to get the page and return the html
 def get_page(url):
@@ -57,9 +60,7 @@ def loopAndSavePost(postPage):
         p_elements = post_body_element.find_all('p')
         for p_element in p_elements:
             postText.append(p_element.text.strip())
-        break #So no comments will be added to the post text
-    gptResponse = chatGpt.get_response(prompt + str(postText))
-    print("GPT Response:", gptResponse)
+        break  # So no comments will be added to the post text
     postText.append("---- new post text ---- \n")
     for text in postText:
         requestText.append(text)
@@ -72,12 +73,23 @@ def saveNameOfTheCity(forumcol_element):
     if city_element:
         city = city_element.text.strip()
         print("City of Request:", city)
-        requestText.append("The city of request is: " + city)
+        requestText.append("City of request is: " + city + "\n")
+
+
+def generate_next_page_url(url, page, items_per_page=20):
+    # Calculate the next page number
+    next_page_number = page + items_per_page
+    # Generate the URL for the next page
+    next_page_url = f"{url}-o{next_page_number}-Italy.html"
+    return next_page_url
 
 
 # URL of the webpage you want to crawl
-url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-Italy.html'
+other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'
+first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-Italy.html'
 base_url = "https://www.tripadvisor.it"
+
+current_page_number = 20
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -85,7 +97,7 @@ headers = {
 }
 
 # Send an HTTP GET request to the URL
-forumPage = get_page(url)
+forumPage = get_page(first_page_url)
 
 # td_elements containing the td elements and inside them the posts
 td_elements = forumPage.find_all('td', class_='')
@@ -99,12 +111,14 @@ numberOfIteration = 0  # Number of iteration to do
 # Loop through the <td> elements to find the one with the link you want
 for td_element in td_elements:  # Loop through the <td> elements, almost each element is a post
     b_elements = td_element.find_all('b')
-    if (numberOfIteration == 5):
-        break
-    numberOfIteration += 1
     for b_element in b_elements:  # Loop through the <b> elements, inside <b> there is the description of the post
         a_element = b_element.find('a')  # Find the <a> element, inside <a> there is the link to the post
-        requestText.append("////////////////")
+
+        if (numberOfIteration > 43):
+            break
+
+        requestText.append("--- New element head ---\n")
+
         if a_element:
             saveNameOfTheCity(forumcol_elements.pop(1))  # Save the name of the city of the post
             href = a_element.get('href')  # Get the href attribute of the <a> element
@@ -112,7 +126,17 @@ for td_element in td_elements:  # Loop through the <td> elements, almost each el
             saveCityOfProvenance(postPage)
             save_name(postPage)
             loopAndSavePost(postPage)  # Loop through the post and save the text
+            # Send the text to chatgpt and save the response
+            gptResponse.append(chatGpt.get_response(prompt + "\n" + str(requestText)))
+            requestText.clear()
+
+    if (td_elements.index(
+            td_element) >= 37):  # If the index of the element is equal to the number of iteration then it means that we are at the end of the page
+        forumPage = get_page(generate_next_page_url(other_pagesBaseUrl, current_page_number))
+        td_elements = forumPage.find_all('td', class_='')
+        forumcol_elements = forumPage.find_all('td', class_='forumcol')
+        current_page_number += 20
+
+    numberOfIteration += 1
 
 
-
-print("Request Text:", requestText)
