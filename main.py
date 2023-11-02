@@ -24,7 +24,7 @@ gptResponse = []
 # Text passed to chatgpt
 requestText = []
 
-user_object = {"Username": "", "In_visit_to": "", "In_visit_from": "", "chatGptResponse": "", "prompt": ""}
+user_object = {"Username": "", "In_visit_to": "", "In_visit_from": "", "chatGptResponse": "", "prompt": "", "sex": "", "needs": "", "user_type": ""}
 
 list_of_user_objects = []
 
@@ -138,6 +138,9 @@ for index in enumerate(td_elements):  # Loop through the <td> elements, almost e
             response = chatGpt.get_response(prompt + "\n" + str(requestText))  # Get the response from chatgpt
             gptResponse.append(response)  # Save the response in gptResponse array
             user_object["chatGptResponse"] = response  # Save the response in user_object
+            user_object["sex"] = "Unknown"
+            user_object["needs"] = "Unknown"
+            user_object["user_type"] = "Unknown"
             list_of_user_objects.append(user_object.copy())  # Save the user_object in the list of user objects
             user_object.clear()  # Clear the user_object
             requestText.clear()  # Clear the requestText
@@ -158,6 +161,7 @@ for index in enumerate(td_elements):  # Loop through the <td> elements, almost e
 
 db = DatabaseService(list_of_user_objects)
 
+db.extend()
 db.print()
 
 
