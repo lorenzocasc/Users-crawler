@@ -24,13 +24,17 @@ gptResponse = []
 # Text passed to chatgpt
 requestText = []
 
-user_object = {"Username": "", "In_visit_to": "", "In_visit_from": "", "chatGptResponse": "", "prompt": "", "sex": "", "needs": "", "user_type": ""}
+user_object = {"Username": "", "In_visit_to": "", "In_visit_from": "", "chatGptResponse": "", "prompt": "", "sex": "",
+               "needs": "", "user_type": ""}
 
 list_of_user_objects = []
+
 
 # save the name of the user
 def save_name(postPage):
     username_element = postPage.find('div', class_='username')
+    if username_element == None:
+        return
     username = username_element.find('a')
     if username:
         username = username.text.strip()
@@ -116,13 +120,19 @@ forumcol_elements = forumPage.find_all('td', class_='forumcol')
 numberOfIteration = 0  # Number of iteration to do
 
 # Loop through the <td> elements to find the one with the link you want
-for index in enumerate(td_elements):  # Loop through the <td> elements, almost each element is a post
+# for index in enumerate(td_elements):  # Loop through the <td> elements, almost each element is a post
+
+haltCondition = True
+enum = enumerate(td_elements)
+index = next(enum)
+while haltCondition:
     td_element = td_elements[index[0]]
     b_elements = td_element.find_all('b')
     for b_element in b_elements:  # Loop through the <b> elements, inside <b> there is the description of the post
         a_element = b_element.find('a')  # Find the <a> element, inside <a> there is the link to the post
 
-        if (numberOfIteration > 7):  # Limit the number of iteration
+        if numberOfIteration > 90:  # Limit the number of iteration, each element needs 2 iteration
+            haltCondition = False
             break
 
         requestText.append("--- New element head ---\n")
@@ -134,7 +144,7 @@ for index in enumerate(td_elements):  # Loop through the <td> elements, almost e
             saveCityOfProvenance(postPage)
             save_name(postPage)
             loopAndSavePost(postPage)  # Loop through the post and save the text
-            user_object["prompt"] = prompt + "\n" + str(requestText) # Save the prompt used for chatgpt in user_object
+            user_object["prompt"] = prompt + "\n" + str(requestText)  # Save the prompt used for chatgpt in user_object
             response = chatGpt.get_response(prompt + "\n" + str(requestText))  # Get the response from chatgpt
             gptResponse.append(response)  # Save the response in gptResponse array
             user_object["chatGptResponse"] = response  # Save the response in user_object
@@ -146,22 +156,23 @@ for index in enumerate(td_elements):  # Loop through the <td> elements, almost e
             requestText.clear()  # Clear the requestText
 
     if (td_elements.index(
-            td_element) >= 43):  # If the index of the element is equal to the number of iteration then it means that we are at the end of the page
+            td_element) >= 37):  # If the index of the element is equal to the number of iteration then it means that
+        # we are at the end of the page
         forumPage = get_page(generate_next_page_url(other_pagesBaseUrl, current_page_number))
         td_elements = forumPage.find_all('td', class_='')
         forumcol_elements = forumPage.find_all('td', class_='forumcol')
         current_page_number += 20
+        enum = enumerate(td_elements)
 
     numberOfIteration += 1
-    print("\nNum of iteration: ",  numberOfIteration)
-    print("\n")
-
-
-
+    print("\nNum of iteration: ", numberOfIteration)
+    index = next(enum)
+    # time.sleep(1)
 
 db = DatabaseService(list_of_user_objects)
 
 db.extend()
+
 db.print()
 
-
+db.save()

@@ -22,10 +22,17 @@ class DatabaseService:
 
     def print(self):
         for user in self.listofUsers:
-            print(user["Username"])
-            print(user["In_visit_from"])
-            print(user["In_visit_to"])
-            print(user["chatGptResponse"])
-            print(user["sex"])
-            print(user["needs"])
-            print(user["user_type"])
+            print("\n------USER-----")
+            print("Username: " + user["Username"])
+            print("In visit from: " + user["In_visit_from"])
+            print("In visit to: " + user["In_visit_to"])
+            print("chatGptResponse: " + user["chatGptResponse"])
+            print("Sex: " + user["sex"])
+            print("Needs: " + user["needs"])
+            print("User type: " + user["user_type"])
+            print("END USER")
+
+    def save(self):
+        # Save the list of dictionaries to a csv file
+        df = pd.DataFrame(self.listofUsers)
+        df.to_csv('users.csv', index=False)
