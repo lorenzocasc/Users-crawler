@@ -3,6 +3,13 @@ import requests
 from bs4 import BeautifulSoup
 from gpt import GPT
 from databaseService import DatabaseService
+import csv
+
+csv_filename = "output_crawler.csv"
+
+# Open the file in write mode ('w') and create a csv.writer object
+with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
+    csvfile.write('city_topic,city_origin,username,post_text\n')
 
 # Set your openai API key
 api_key = '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'
@@ -11,12 +18,14 @@ api_key = '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'
 chatGpt = GPT(api_key=api_key, engine='gpt-4')
 
 # Chatgpt prompt to be used
-prompt = ("Generate birth sex(from username), user type and associated need, with this format: Sex: [Male] or ["
-          "Female] or Uncertain, Need: [need1] (description of need) 2), [need2] (description of need), "
-          "etc and User: [user]. (Examples of users can be Tourist, Student, Local, etc)"
-          "Also is very important that if no user or need can be precisely derivated from the text provided, "
-          "you should write me \"Impossibile\". I need short-medium sentences for needs. One, two or three words "
-          "maximum for the user description. Answer with a single sentence . Text provided:")
+# prompt = ("Generate birth sex(from username), user type and associated need, with this format: Sex: [Male] or ["
+#           "Female] or Uncertain, Need: [need1] (description of need) 2), [need2] (description of need), "
+#           "etc and User: [user]. (Examples of users can be Tourist, Student, Local, etc)"
+#           "Also is very important that if no user or need can be precisely derivated from the text provided, "
+#           "you should write me \"Impossibile\". I need short-medium sentences for needs. One, two or three words "
+#           "maximum for the user description. Answer with a single sentence . Text provided:")
+
+prompt = "Construct a Python dict from the text. Extract user personas, assign unique names as keys, and create sub-dictionaries with 'Sex', 'Needs', and 'Hashtags'. Determine 'Sex' from the text, list 'Needs' inferred from it, and create single-word 'Hashtags' for each persona. Return only the dict. Text:"
 
 # Chatgpt response
 gptResponse = []
@@ -38,9 +47,13 @@ def save_name(postPage):
     username = username_element.find('a')
     if username:
         username = username.text.strip()
-        requestText.append("Username: " + username + "\n")
+        requestText.append(
+            # "Username: " +
+              username 
+            #   + "\n"
+              )
         user_object["Username"] = username
-        print("Username:", username)
+        # print("Username:", username)
 
 
 # Save the city of provenance of the user
@@ -48,9 +61,13 @@ def saveCityOfProvenance(postPage):
     cityOfProvenance_element = postPage.find('div', class_='location')
     if cityOfProvenance_element:
         cityOfProvenance = cityOfProvenance_element.text.strip()
-        requestText.append("City of provenience: " + cityOfProvenance + "\n")
+        requestText.append(
+            # "City of provenience: " + 
+            cityOfProvenance 
+            # + "\n"
+            )
         user_object["In_visit_from"] = cityOfProvenance
-        print("City of Provenance: ", cityOfProvenance)
+        # print("City of Provenance: ", cityOfProvenance)
 
 
 # Http request to get the page and return the html
@@ -70,8 +87,8 @@ def loopAndSavePost(postPage):
         p_elements = post_body_element.find_all('p')
         for p_element in p_elements:
             postText.append(p_element.text.strip())
-        break  # So no comments will be added to the post text
-    postText.append("---- new post text ---- \n")
+        break  # So no comments w=qill be added to the post text
+    # postText.append("---- new post text ---- \n")
     for text in postText:
         requestText.append(text)
     postText.clear()
@@ -82,9 +99,13 @@ def saveNameOfTheCity(forumcol_element):
     city_element = forumcol_element.find('a')
     if city_element:
         city = city_element.text.strip()
-        print("City of Request:", city)
-        user_object["In_visit_to"] = city
-        requestText.append("City of request is: " + city + "\n")
+        # print("City of Request:", city)
+        user_object["In_`visit_to"] = city
+        requestText.append(
+            # "City of request is: " + 
+            city 
+            # + "\n"
+            )
 
 
 def generate_next_page_url(url, page, items_per_page=20):
@@ -94,13 +115,30 @@ def generate_next_page_url(url, page, items_per_page=20):
     next_page_url = f"{url}-o{next_page_number}-Italy.html"
     return next_page_url
 
+def write_row(my_string):
+    # The name of the CSV file where the string will be written
+    csv_filename = "output_crawler.csv"
+
+    # Open the file in write mode ('w') and create a csv.writer object
+    with open(csv_filename, 'a', newline='', encoding='utf-8') as csvfile:
+        # Create a CSV writer object
+        # csvwriter = csv.writer(csvfile,quoting=csv.QUOTE_NONE,escapechar='\\')
+        # csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        csvfile.write(my_string + '\n')
+
+
+        # Write the string as a single row in the CSV file
+        # csvwriter.writerow([my_string])
+
+
 
 # URL of the webpage you want to crawl
 other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'
-first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-Italy.html'
+# first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-Italy.html'
+first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o20300-Italy.html'
 base_url = "https://www.tripadvisor.it"
 
-current_page_number = 0
+current_page_number = 20300
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -130,12 +168,12 @@ while haltCondition:
     b_elements = td_element.find_all('b')
     for b_element in b_elements:  # Loop through the <b> elements, inside <b> there is the description of the post
         a_element = b_element.find('a')  # Find the <a> element, inside <a> there is the link to the post
-
-        if numberOfIteration > 90:  # Limit the number of iteration, each element needs 2 iteration
+        
+        if numberOfIteration > 70000:  # Limit the number of iteration, each element needs 2 iteration
             haltCondition = False
             break
-
-        requestText.append("--- New element head ---\n")
+        
+        # requestText.append("--- New element head ---\n")
 
         if a_element:
             saveNameOfTheCity(forumcol_elements.pop(1))  # Save the name of the city of the post
@@ -145,15 +183,16 @@ while haltCondition:
             save_name(postPage)
             loopAndSavePost(postPage)  # Loop through the post and save the text
             user_object["prompt"] = prompt + "\n" + str(requestText)  # Save the prompt used for chatgpt in user_object
-            response = chatGpt.get_response(prompt + "\n" + str(requestText))  # Get the response from chatgpt
+            # response = chatGpt.get_response(prompt + "\n" + str(requestText))  # Get the response from chatgpt
+            response = ''
             gptResponse.append(response)  # Save the response in gptResponse array
             user_object["chatGptResponse"] = response  # Save the response in user_object
             user_object["sex"] = "Unknown"
             user_object["needs"] = "Unknown"
             user_object["user_type"] = "Unknown"
             list_of_user_objects.append(user_object.copy())  # Save the user_object in the list of user objects
-            user_object.clear()  # Clear the user_object
-            requestText.clear()  # Clear the requestText
+            # user_object.clear()  # Clear the user_object
+            # requestText.clear()  # Clear the requestText
 
     if (td_elements.index(
             td_element) >= 37):  # If the index of the element is equal to the number of iteration then it means that
@@ -163,16 +202,40 @@ while haltCondition:
         forumcol_elements = forumPage.find_all('td', class_='forumcol')
         current_page_number += 20
         enum = enumerate(td_elements)
+        print("PAGE CHANGED! NUMBER: ", current_page_number)
 
+    if numberOfIteration % 2 != 0:
+        if len(requestText) > 3:
+            city_request = requestText[0].replace('"', '')
+            city_provenance = requestText[1].replace('"', '')
+            city_provenance = requestText[1].replace(',', '')
+            username = requestText[2].replace('"', '')
+            # from now on, requests' lines
+            post_text = ''
+            for elem in requestText[3:]:
+                post_text += elem.replace('"', '') + ' '
+                
+            final_row = city_request+','+city_provenance+','+username+',"'+post_text+'"'
+
+            response = chatGpt.get_response(prompt + "\n" + post_text)  # Get the response from chatgpt
+
+            final_row += ","+response
+
+            # print(final_row)
+            # print(user_object["prompt"])
+            write_row(final_row)
+    requestText.clear()
+    user_object.clear()
     numberOfIteration += 1
-    print("\nNum of iteration: ", numberOfIteration)
+    # print("\nNum of iteration: ", numberOfIteration)
     index = next(enum)
-    # time.sleep(1)
+    # time.sleep(5)
 
-db = DatabaseService(list_of_user_objects)
 
-db.extend()
+# db = DatabaseService(list_of_user_objects)
 
-db.print()
+# db.extend()
 
-db.save()
+# db.print()
+
+# db.save()
