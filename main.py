@@ -1,5 +1,6 @@
 import time
 import requests
+import ast
 from bs4 import BeautifulSoup
 from gpt import GPT
 from databaseService import DatabaseService
@@ -25,8 +26,11 @@ chatGpt = GPT(api_key=api_key, engine='gpt-4')
 #           "you should write me \"Impossibile\". I need short-medium sentences for needs. One, two or three words "
 #           "maximum for the user description. Answer with a single sentence . Text provided:")
 
-prompt = "Construct a Python dict from the text. Extract user personas, assign unique names as keys, and create sub-dictionaries with 'Sex', 'Needs', and 'Hashtags'. Determine 'Sex' from the text, list 'Needs' inferred from it, and create single-word 'Hashtags' for each persona. Return only the dict. Text:"
+promptx = "I'm providing you username and text of a post, from these two you have to determine the sex, the needs and the user persona. Its important that the user persona isn't so specific. Also if no needs or user persona can be determined you should simply return \"impossibile\". If no sex can be established you have to return \"undefined\". Provide the data i requested in a python dictionary with no more addition. Here is the text provided: "
 
+promptt = "Fornito username e un testo associato, determina il sesso e i 'bisogni' dell'utente. E' importante che i bisogni non siano troppo specifici. Se non riesci a determinare i bisogni o il tipo di utente, scrivi semplicemente \"impossibile\". Se non riesci a determinare il sesso, scrivi \"undefined\". Fornisci i dati richiesti in un dizionario python senza ulteriori aggiunte. Ecco il testo fornito: "
+
+prompt = "Generate a python dictionary containing:  birth sex (from username and text), as many user persona as you can, and associated need, with this format: Sex: Male or Female or Uncertain, Need: need1 (description of need1), need2 (description of need2), etc and User: user. (Examples of users can be Tourist, Student, Local, Culinary tourist, Art Tourist, Erasmus Student, etc). Also is very important that if no user or need can be precisely derivated from the text provided, you should write me \"Impossibile\". I need short-medium sentences for needs. One, two or three words maximum for the user description. Answer with a python dictionary. Avoid any unecessary text or comment. If text provided includes links write SPAM. Text provided: "
 # Chatgpt response
 gptResponse = []
 
@@ -49,7 +53,7 @@ def save_name(postPage):
         username = username.text.strip()
         requestText.append(
             # "Username: " +
-              username 
+              username
             #   + "\n"
               )
         user_object["Username"] = username
@@ -63,7 +67,7 @@ def saveCityOfProvenance(postPage):
         cityOfProvenance = cityOfProvenance_element.text.strip()
         requestText.append(
             # "City of provenience: " + 
-            cityOfProvenance 
+            cityOfProvenance
             # + "\n"
             )
         user_object["In_visit_from"] = cityOfProvenance
@@ -103,7 +107,7 @@ def saveNameOfTheCity(forumcol_element):
         user_object["In_`visit_to"] = city
         requestText.append(
             # "City of request is: " + 
-            city 
+            city
             # + "\n"
             )
 
@@ -134,11 +138,11 @@ def write_row(my_string):
 
 # URL of the webpage you want to crawl
 other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'
-# first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-Italy.html'
-first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o20300-Italy.html'
+first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-Italy.html'
+#first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o20300-Italy.html'
 base_url = "https://www.tripadvisor.it"
 
-current_page_number = 20300
+current_page_number = 2000
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -168,11 +172,11 @@ while haltCondition:
     b_elements = td_element.find_all('b')
     for b_element in b_elements:  # Loop through the <b> elements, inside <b> there is the description of the post
         a_element = b_element.find('a')  # Find the <a> element, inside <a> there is the link to the post
-        
-        if numberOfIteration > 70000:  # Limit the number of iteration, each element needs 2 iteration
+
+        if numberOfIteration > 500:  # Limit the number of iteration, each element needs 2 iteration
             haltCondition = False
             break
-        
+
         # requestText.append("--- New element head ---\n")
 
         if a_element:
@@ -214,16 +218,25 @@ while haltCondition:
             post_text = ''
             for elem in requestText[3:]:
                 post_text += elem.replace('"', '') + ' '
-                
+
             final_row = city_request+','+city_provenance+','+username+',"'+post_text+'"'
 
-            response = chatGpt.get_response(prompt + "\n" + post_text)  # Get the response from chatgpt
+            response = chatGpt.get_response(prompt + "\n" + "Username: " + username + " text: " + post_text)  # Get the response from chatgpt
+            #lines = response.split('\n')
 
-            final_row += ","+response
+# Remove the first line
+            #response = '\n'.join(lines[1:-1])
+            #responseObject = ast.literal_eval(response)
+            #responseObject["username"] = username
+            #responseObject["post_text"] = post_text
 
-            # print(final_row)
+            final_row += "," + str(response)
+
+            print(final_row + '\n')
             # print(user_object["prompt"])
             write_row(final_row)
+            #time.sleep(5)
+
     requestText.clear()
     user_object.clear()
     numberOfIteration += 1
