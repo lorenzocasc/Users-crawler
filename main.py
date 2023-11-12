@@ -135,6 +135,68 @@ def write_row(my_string):
         # Write the string as a single row in the CSV file
         # csvwriter.writerow([my_string])
 
+# import json
+
+# def parse_input_to_csv(input_str):
+#     print(input_str)
+#     try:
+#         # Analisi dell'input come un dizionario
+#         data = json.loads(input_str.replace("'", '"'))
+
+#         # Controlla se il campo SPAM è falso o simile
+#         spam = data.get('SPAM', '').lower()
+#         if 'false' in spam or 'http' in spam:
+#             return None
+
+#         # Estrazione dei campi richiesti
+#         sex = data.get('Sex', '')
+#         user = data.get('User', '')
+#         needs = data.get('Need', {})
+
+#         # Gestione del numero variabile di need
+#         need_values = [needs.get(f'need{i}', '') for i in range(1, len(needs) + 1)]
+
+#         # Creazione della stringa CSV
+#         csv_str = ','.join([sex, user] + need_values)
+#         return csv_str
+
+#     except json.JSONDecodeError:
+#         # Gestisce errori di formattazione
+#         return "Errore di formattazione"
+
+import json
+
+def parse_input_to_csv(input_str):
+    print(input_str)
+    try:
+        # Analisi dell'input come un dizionario
+        data = json.loads(input_str)
+
+        # Controlla se il campo SPAM è falso o simile
+        spam = data.get('Spam', '').lower()
+        if 'false' in spam or 'http' in spam:
+            return "SPAM"
+
+        # Estrazione dei campi richiesti
+        sex = data.get('Sex', '')
+        user = data.get('User', '')
+        needs = data.get('Need', '')
+        print("needs type: ",type(needs))
+
+        # Gestisce sia i dizionari Need sia le stringhe singole
+        if isinstance(needs, dict):
+            need_values = [needs.get(f'need{i}', '') for i in range(1, len(needs) + 1)]
+        else:
+            need_values = [needs]
+
+        # Creazione della stringa CSV
+        csv_str = ','.join([sex, user] + need_values)
+        return csv_str
+
+    except json.JSONDecodeError:
+        # Gestisce errori di formattazione
+        return "Errore di formattazione"
+
 
 
 # URL of the webpage you want to crawl
@@ -174,7 +236,7 @@ while haltCondition:
     for b_element in b_elements:  # Loop through the <b> elements, inside <b> there is the description of the post
         a_element = b_element.find('a')  # Find the <a> element, inside <a> there is the link to the post
 
-        if numberOfIteration > 10:  # Limit the number of iteration, each element needs 2 iteration
+        if numberOfIteration > 20:  # Limit the number of iteration, each element needs 2 iteration
             haltCondition = False
             break
 
@@ -219,11 +281,20 @@ while haltCondition:
             for elem in requestText[3:]:
                 post_text += elem.replace('"', '') + ' '
 
-            final_row = city_request+','+city_provenance+','+username+',"'+post_text+'"'
+            final_row = city_request+','+city_provenance+','+username+',"'
+            final_row_post_rtext = final_row + post_text + '"'
             response = chatGpt.get_response(prompt + "\n" + "Username: " + username + " text: " + post_text)  # Get the response from chatgpt
-            final_row += "," + str(response)
-            print(final_row + '\n')
-            write_row(final_row)
+            final_row_response = final_row + "," + str(response)
+            # print(str(response))
+            # print(final_row + '\n')
+            x = parse_input_to_csv(str(response)[11:])
+            # print(x)
+            x.replace('"', '')
+            x.replace(',', ';')
+            if x == "SPAM":
+                print("SPAM")
+                continue
+            write_row(final_row+'","'+x+'"')
 
     requestText.clear()
     user_object.clear()
@@ -231,10 +302,10 @@ while haltCondition:
     index = next(enum)
 
 
-db = DatabaseService(list_of_user_objects)
-db.extend()
-#db.print()
+# db = DatabaseService(list_of_user_objects)
+# db.extend()
+# #db.print()
 
-db.save()
+# db.save()
 
 #%%
