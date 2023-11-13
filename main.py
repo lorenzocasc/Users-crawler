@@ -154,9 +154,13 @@ def parse_input_to_csv(input_str):
             if(spam):
                 print("spam")
                 return "spam"
-        if 'true' in spam or 'http' in spam or 'yes' in spam:
-            print("spam")
-            return "spam"
+        try:
+          if 'true' in spam or 'http' in spam or 'yes' in spam:
+              print("spam")
+              return "spam"
+        except Exception as e:
+            print("error: ",e)
+            pass
 
         # Estrazione dei campi richiesti
         sex = data.get('sex', '')
@@ -229,11 +233,11 @@ def parse_nested_input_to_csv(input_str):
 
 # URL of the webpage you want to crawl
 other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'
-first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o1340-Italy.html'
+first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o1440-Italy.html'
 #first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o20300-Italy.html'
 base_url = "https://www.tripadvisor.it"
 
-current_page_number = 1340
+current_page_number = 1440
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -269,27 +273,31 @@ while haltCondition:
             break
 
         if a_element:
-            saveNameOfTheCity(forumcol_elements.pop(1))  # Save the name of the city of the post
-            href = a_element.get('href')  # Get the href attribute of the <a> element
-            postPage = get_page(base_url + href)  # Get the page of the post
+            saveNameOfTheCity(forumcol_elements.pop(1))  #Save the name of the city of the post
+            href = a_element.get('href')  #Get the href attribute of the <a> element
+            postPage = get_page(base_url + href)  #Get the page of the post
             saveCityOfProvenance(postPage)
             save_name(postPage)
-            if user_object["Username"] != "Matteo Z":
-                loopAndSavePost(postPage)  # Loop through the post and save the text
-                user_object["prompt"] = prompt + "\n" + str(requestText)  # Save the prompt used for chatgpt in user_object
+            try:
+              if user_object["Username"] != "Matteo Z":
+                loopAndSavePost(postPage)  #Loop through the post and save the text
+                user_object["prompt"] = prompt + "\n" + str(requestText)  #Save the prompt used for chatgpt in user_object
                 print("waiting for ChatGPT response...")
-                response = chatGpt.get_response(prompt + "\n" + str(requestText))  # Get the response from chatgpt
+                response = chatGpt.get_response(prompt + "\n" + str(requestText))  #Get the response from chatgpt
                 print(response)
-                gptResponse.append(response)  # Save the response in gptResponse array
-                user_object["chatGptResponse"] = response  # Save the response in user_object
+                gptResponse.append(response)  #Save the response in gptResponse array
+                user_object["chatGptResponse"] = response  #Save the response in user_object
                 user_object["sex"] = "Unknown"
                 user_object["needs"] = "Unknown"
                 user_object["user_type"] = "Unknown"
                 list_of_user_objects.append(user_object.copy())  # Save the user_object in the list of user objects
                 user_object.clear()  # Clear the user_object
-            else:
+              else:
                 print("SKIPPO Matteo Z")
 
+            except Exception as e:
+                print("error: ",e)
+                pass
 
 
     print("td_elements.index(td_element) ",td_elements.index(td_element))
