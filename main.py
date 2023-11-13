@@ -233,11 +233,11 @@ def parse_nested_input_to_csv(input_str):
 
 # URL of the webpage you want to crawl
 other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'
-first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o1440-Italy.html'
+first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2560-Italy.html'
 #first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o20300-Italy.html'
 base_url = "https://www.tripadvisor.it"
 
-current_page_number = 1440
+current_page_number = 2560
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) '
