@@ -7,15 +7,16 @@ import time
 # chatGpt = GPT(engine='gpt-3.5-turbo-16k')
 chatGpt = GPT(engine='gpt-4')
 
-# URL of the webpage you want to crawl
-other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'
+other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'  # The base url used to change pages
+
+# The url of the first to page to crawl
 first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2580-Italy.html'
-base_url = "https://www.tripadvisor.it"
 
-current_page_number = 2580
+base_url = "https://www.tripadvisor.it"  # The base url of the website, used to change pages
 
-# Send an HTTP GET request to the URL
-forumPage = Utility.get_page(first_page_url)
+current_page_number = 2580  # The number of the first page of the forum to crawl
+
+forumPage = Utility.get_page(first_page_url)  # Send an HTTP GET request to the URL
 
 # td_elements containing the td elements and inside them the posts
 td_elements = forumPage.find_all('td', class_='')
@@ -26,8 +27,9 @@ forumcol_elements = forumPage.find_all('td', class_='forumcol')
 enum = enumerate(td_elements)
 index = next(enum)
 
+'''This function changes the page and updates the td_elements and forumcol_elements'''
 
-# This function changes the page and updates the td_elements and forumcol_elements
+
 def changePage():
     global forumPage
     global current_page_number
@@ -42,12 +44,13 @@ def changePage():
     print("PAGE CHANGED! NUMBER: ", current_page_number)
 
 
-# numberOfIteration is used to limit the number of posts to analyze
-postsToIterate = 0  # Number of iteration to do
+postsToIterate = 0  # numberOfIteration is used to limit the number of posts to analyze
 
-# Loop through the <td> elements to find the one with the link you want
-# for index in enumerate(td_elements):  # Loop through the <td> elements, almost each element is a post
-haltCondition = True
+haltCondition = True  # This condition is used to stop the loop when the limit of posts to analyze is reached
+
+'''Loop through the pages and posts of Tripadvisor italy forum, and for each post get the text, username, 
+city of origin of the post writer, city for which the question is beeing asked then send them to chatgpt to get the 
+an estimations of the needs expressed in the text of the post, then save the data in the csv file'''
 
 while haltCondition:
 
