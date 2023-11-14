@@ -1,14 +1,7 @@
-from bs4 import BeautifulSoup
 from Utility import Utility
 from gpt import GPT
 from databaseService import DatabaseService
-import csv
-import os
-import re
-import json
 import time
-import requests
-import ast
 
 # Create a GPT object
 # chatGpt = GPT(engine='gpt-3.5-turbo-16k')
@@ -64,7 +57,7 @@ while haltCondition:
     for b_element in b_elements:  # Loop through the <b> elements, inside <b> there is the description of the post
         a_element = b_element.find('a')  # Find the <a> element, inside <a> there is the link to the post
 
-        if postsToIterate > 20:
+        if postsToIterate > 20:  # Limit the number of posts to analyze
             haltCondition = False
             break
 
@@ -82,13 +75,12 @@ while haltCondition:
             try:
                 if usernameOfUser != "Fail":
                     postText = Utility.extractPostText(postPage)  # Save the text of the post
-                    chatGptPrompt = chatGpt.prompt + "Username: " + usernameOfUser + " text: " + " \" " + postText + " \" "
-                    print(chatGptPrompt)
+                    chatGptPrompt = chatGpt.prompt + "Username: " + usernameOfUser + " text: " + "\" " + postText + "\""
                     print("waiting for ChatGPT response...")
-                    # responseFromChatGpt = chatGpt.get_response(chatGptPrompt)  # Get the response from chatgpt
-                    # print(responseFromChatGpt)
-                    # DatabaseService.extend(cityQuestionedInPost, cityOfProvenanceOfUser, usernameOfUser, postText,
-                    #                       responseFromChatGpt)
+                    responseFromChatGpt = chatGpt.get_response(chatGptPrompt)  # Get the response from chatgpt
+                    print(responseFromChatGpt)
+                    DatabaseService.extend(cityQuestionedInPost, cityOfProvenanceOfUser, usernameOfUser, postText,
+                                           responseFromChatGpt)
 
             except Exception as e:
                 print("error: ", e)
@@ -96,10 +88,9 @@ while haltCondition:
 
     if (td_elements.index(
             td_element) >= 37):  # If the index of the element is equal to the number of iteration then it means that
-        # we are at the end of the page
+        # we are at the end of the page (each page has 20 posts, but 37 td elements)
         changePage()
 
     postsToIterate += 0.5
     time.sleep(1)
-    print("POSTS ITERATED: ", postsToIterate + 0.5)
     index = next(enum)
