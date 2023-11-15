@@ -19,9 +19,20 @@ class DatabaseService:
         json_string = element[start_index:]
         python_dict = json.loads(json_string)
 
+        if 'need1' not in python_dict:
+            python_dict['need1'] = 'None'
+        if 'need2' not in python_dict:
+            python_dict['need2'] = 'None'
+        if 'need3' not in python_dict:
+            python_dict['need3'] = 'None'
+        if 'need4' not in python_dict:
+            python_dict['need4'] = 'None'
+
         # Adding city of provenance and city requested to the python dictionary
         python_dict['city_request'] = cityQuestionedInPost
         python_dict['city_provenance'] = cityOfProvenanceOfUser
+
+
 
         if python_dict['spam'].lower() not in ['yes', 'y']:
             file_name = "output.csv"

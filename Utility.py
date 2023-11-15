@@ -15,6 +15,8 @@ text_list (List): List of the text of the post.
 Returns:
 String: The text of the post.
 """
+
+
 def format_postText(text_list):
     text = ''
     for elem in text_list:
@@ -38,15 +40,20 @@ class Utility:
     Returns:
     String: The username of the user who made the post.
     """
+
     @staticmethod
     def getUsernameFromHtml(postHtml):
 
         username_element = postHtml.find('div', class_='username')
         if username_element is not None:
             username = username_element.find('a')
-        if username:
-            username = username.text.strip()
-            return username if username != "Matteo Z" else "Fail"
+        try:
+            if username:
+                username = username.text.strip()
+                return username if username != "Matteo Z" else "Fail"
+        except Exception as e:
+            print("error in getUsernameFromHtml function in Utily class: ", e)
+            return "Impossibile to get the username"
 
     """
     This function search for the element 'div' with class 'location'
@@ -58,6 +65,7 @@ class Utility:
     Returns:
     String: The city of provenance of the user who made the post.
     """
+
     @staticmethod
     def getCityOfProvenanceOfUser(postPage):
         cityOfProvenance_element = postPage.find('div', class_='location')
@@ -74,6 +82,7 @@ class Utility:
     Returns:
     String: html of the page (Object).
     """
+
     @staticmethod
     def get_page(url):
         response = requests.get(url, headers=headers)
@@ -82,6 +91,7 @@ class Utility:
         else:
             print("Failed to retrieve the webpage. Status code: {response.status_code}")
             return None
+
     """
     This function search for the element 'div' with class 'postBody'
     to save the text of the post.
@@ -92,6 +102,7 @@ class Utility:
     Returns:
     String: The text of the post.
     """
+
     @staticmethod
     def extractPostText(postPage):
         post_text = []
@@ -117,6 +128,7 @@ class Utility:
     Returns:
     String: The url of the next page.
     """
+
     @staticmethod
     def generate_next_page_url(url, page, items_per_page=20):
         # Calculate the next page number
@@ -137,6 +149,7 @@ class Utility:
     Returns:
     String: The name of the city.
     """
+
     @staticmethod
     def getNameOfQuestionedCity(forumcol_element):
 
