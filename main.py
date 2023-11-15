@@ -5,7 +5,7 @@ import time
 
 # Create a GPT object
 # chatGpt = GPT(engine='gpt-3.5-turbo-16k')
-chatGpt = GPT(engine='gpt-4')
+chatGpt = GPT(engine='gpt-3.5-turbo-16k')
 
 other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'  # The base url used to change pages
 
@@ -82,8 +82,7 @@ while haltCondition:
                     print("waiting for ChatGPT response...")
                     responseFromChatGpt = chatGpt.get_response(chatGptPrompt)  # Get the response from chatgpt
                     print(responseFromChatGpt)
-                    DatabaseService.extend(cityQuestionedInPost, cityOfProvenanceOfUser, usernameOfUser, postText,
-                                           responseFromChatGpt)
+                    DatabaseService.save(responseFromChatGpt, cityQuestionedInPost, cityOfProvenanceOfUser)
 
             except Exception as e:
                 print("error: ", e)
