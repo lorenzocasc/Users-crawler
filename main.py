@@ -10,11 +10,11 @@ chatGpt = GPT(engine='gpt-3.5-turbo-16k')
 other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'  # The base url used to change pages
 
 # The url of the first to page to crawl
-first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2580-Italy.html'
+first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2800-Italy.html'
 
 base_url = "https://www.tripadvisor.it"  # The base url of the website, used to change pages
 
-current_page_number = 2580  # The number of the first page of the forum to crawl
+current_page_number = 2800  # The number of the first page of the forum to crawl
 
 forumPage = Utility.get_page(first_page_url)  # Send an HTTP GET request to the URL
 
@@ -62,6 +62,7 @@ while haltCondition:
 
         if postsToIterate > 20:  # Limit the number of posts to analyze
             haltCondition = False
+            print("Limit of posts to analyze reached!")
             break
 
         if a_element:
