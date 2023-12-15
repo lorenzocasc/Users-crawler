@@ -10,11 +10,10 @@ class DatabaseService:
     def __init__(self, list):
         self.listofUsers = list
 
-
     @staticmethod
     def save(element, cityQuestionedInPost, cityOfProvenanceOfUser):
 
-        # Retriving element from a json string
+        # Retrieving element from a json string
         start_index = element.find('{')
         json_string = element[start_index:]
         python_dict = json.loads(json_string)
@@ -31,8 +30,6 @@ class DatabaseService:
         # Adding city of provenance and city requested to the python dictionary
         python_dict['city_request'] = cityQuestionedInPost
         python_dict['city_provenance'] = cityOfProvenanceOfUser
-
-
 
         if python_dict['spam'].lower() not in ['yes', 'y']:
             file_name = "output.csv"

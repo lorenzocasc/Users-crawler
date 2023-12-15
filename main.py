@@ -7,14 +7,23 @@ import time
 # chatGpt = GPT(engine='gpt-3.5-turbo-16k')
 chatGpt = GPT(engine='gpt-3.5-turbo-16k')
 
-other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'  # The base url used to change pages
+#other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'  # The base url used to change pages (italian forum)
 
-# The url of the first to page to crawl
-first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2840-Italy.html'
+other_pagesBaseUrl = 'https://www.tripadvisor.com/ShowForum-g187768-i20'  # The base url used to change pages (english forum)
 
-base_url = "https://www.tripadvisor.it"  # The base url of the website, used to change pages
+# The url of the first to page to crawl from the italian italy forum of tripadvisor
+# first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2840-Italy.html'
 
-current_page_number = 2840  # The number of the first page of the forum to crawl
+# The url of the first to page to crawl from the english italy forum of tripadvisor
+first_page_url = 'https://www.tripadvisor.com/ShowForum-g187768-i20-Italy.html'
+
+# The base url of the website, used to change pages (italian forum)
+# base_url = "https://www.tripadvisor.it"  # The base url of the website, used to change pages
+
+# The base url of the website, used to change pages (english forum)
+base_url = "https://www.tripadvisor.com"  # The base url of the website, used to change pages
+
+current_page_number = 0  # The number of the first page of the forum to crawl
 
 forumPage = Utility.get_page(first_page_url)  # Send an HTTP GET request to the URL
 
@@ -28,8 +37,6 @@ enum = enumerate(td_elements)
 index = next(enum)
 
 '''This function changes the page and updates the td_elements and forumcol_elements'''
-
-
 def changePage():
     global forumPage
     global current_page_number
