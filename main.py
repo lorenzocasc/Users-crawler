@@ -9,16 +9,20 @@ chatGpt = GPT(engine='gpt-3.5-turbo-16k')
 
 #other_pagesBaseUrl = 'https://www.tripadvisor.it/ShowForum-g187768-i20'  # The base url used to change pages (italian forum)
 
-other_pagesBaseUrl = 'https://www.tripadvisor.com/ShowForum-g187768-i20'  # The base url used to change pages (english forum)
+#other_pagesBaseUrl = 'https://www.tripadvisor.com/ShowForum-g187768-i20'  # The base url used to change pages (italy english forum)
+
+other_pagesBaseUrl = 'https://www.tripadvisor.com/ShowForum-g28953-i4' # The base url used to change pages (new york english forum)
 
 # The url of the first to page to crawl from the italian italy forum of tripadvisor
-# first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2840-Italy.html'
+#first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2840-Italy.html'
 
 # The url of the first to page to crawl from the english italy forum of tripadvisor
-first_page_url = 'https://www.tripadvisor.com/ShowForum-g187768-i20-Italy.html'
+#first_page_url = 'https://www.tripadvisor.com/ShowForum-g187768-i20-Italy.html'
+
+first_page_url = 'https://www.tripadvisor.com/ShowForum-g28953-i4-New_York.html'
 
 # The base url of the website, used to change pages (italian forum)
-# base_url = "https://www.tripadvisor.it"  # The base url of the website, used to change pages
+#base_url = "https://www.tripadvisor.it"  # The base url of the website, used to change pages
 
 # The base url of the website, used to change pages (english forum)
 base_url = "https://www.tripadvisor.com"  # The base url of the website, used to change pages
@@ -67,17 +71,25 @@ while haltCondition:
     for b_element in b_elements:  # Loop through the <b> elements, inside <b> there is the description of the post
         a_element = b_element.find('a')  # Find the <a> element, inside <a> there is the link to the post
 
-        if postsToIterate > 20:  # Limit the number of posts to analyze
+        if postsToIterate > 10:  # Limit the number of posts to analyze
             haltCondition = False
             print("Limit of posts to analyze reached!")
             break
 
         if a_element:
-            cityQuestionedInPost = Utility.getNameOfQuestionedCity(
+            try:
+             cityQuestionedInPost = Utility.getNameOfQuestionedCity(
                 forumcol_elements.pop(1))  # Save the name of the city for which the question is asked
+            except Exception as e:
+                cityQuestionedInPost = "NoCity"
+                print("error: ", e)
+                pass
 
             href = a_element.get('href')  # Get the href attribute of the <a> element
             postPage = Utility.get_page(base_url + href)  # Get the page of the post
+
+            if postPage is None:
+                continue
 
             cityOfProvenanceOfUser = Utility.getCityOfProvenanceOfUser(
                 postPage)  # Save the city of provenance of the user
@@ -86,12 +98,13 @@ while haltCondition:
             try:
                 if usernameOfUser != "Fail":
                     postText = Utility.extractPostText(postPage)  # Save the text of the post
-                    chatGptPrompt = chatGpt.prompt + "Username: " + usernameOfUser + " text: " + "\" " + postText + "\""
-                    print("waiting for ChatGPT response...")
+                    #chatGptPrompt = chatGpt.prompt + "Username: " + usernameOfUser + " text: " + "\" " + postText + "\""
+                    #print("waiting for ChatGPT response...")
                     print("Text : \n", postText)
-                    responseFromChatGpt = chatGpt.get_response(chatGptPrompt)  # Get the response from chatgpt
-                    print(responseFromChatGpt)
-                    DatabaseService.save(responseFromChatGpt, cityQuestionedInPost, cityOfProvenanceOfUser)
+                    #responseFromChatGpt = chatGpt.get_response(chatGptPrompt)  # Get the response from chatgpt
+                    #print(responseFromChatGpt)
+                    #DatabaseService.save(responseFromChatGpt, cityQuestionedInPost, cityOfProvenanceOfUser)
+                    DatabaseService.save_post(cityQuestionedInPost, cityOfProvenanceOfUser, usernameOfUser, postText)
 
             except Exception as e:
                 print("error: ", e)

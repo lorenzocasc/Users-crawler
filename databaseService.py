@@ -1,14 +1,39 @@
 import csv
-import sqlite3
-import pandas as pd
-import re
-import ast
 import json
 
 
 class DatabaseService:
     def __init__(self, list):
         self.listofUsers = list
+
+    @staticmethod
+    def save_post(cityQuestionedInPost, cityOfProvenanceOfUser, usernameOfUser, postText):
+
+        # Retrieving element from a json string
+        python_dict = {'text': postText, 'username': usernameOfUser, 'city_request': cityQuestionedInPost,
+                       'city_provenance': cityOfProvenanceOfUser}
+
+        # Adding city of provenance and city requested to the python dictionary
+        file_name = "output_newyork.csv"
+
+        file_exists = True
+        try:
+            with open(file_name, 'r') as f:
+                file_exists = True
+        except FileNotFoundError:
+            file_exists = False
+
+        # Open the file in append mode, if it exists, and write the data
+        with open(file_name, 'a', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=python_dict.keys())
+
+            # If the file didn't exist, write the header row
+            if not file_exists:
+                writer.writeheader()
+
+            # Write the data
+            writer.writerow(python_dict)
+
 
     @staticmethod
     def save(element, cityQuestionedInPost, cityOfProvenanceOfUser):
@@ -32,7 +57,7 @@ class DatabaseService:
         python_dict['city_provenance'] = cityOfProvenanceOfUser
 
         if python_dict['spam'].lower() not in ['yes', 'y']:
-            file_name = "output.csv"
+            file_name = "output_newyork.csv"
 
             # Check if the file exists or create a new one with headers
             file_exists = True
