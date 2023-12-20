@@ -35,7 +35,14 @@ forumPage = Utility.get_page(first_page_url)  # Send an HTTP GET request to the 
 td_elements = forumPage.find_all('td', class_='')
 
 # forumcol_elements containing the td elements and inside them the name of the city
-forumcol_elements = forumPage.find_all('td', class_='forumcol')
+try:
+    forumcol_elements = forumPage.find_all('td', class_='forumcol')
+except Exception as e:
+    try:
+        forumcol_elements = forumPage.find_all('td', class_='forumcol ') #newYork
+    except Exception as e:
+        print("error: ", e)
+        pass
 
 enum = enumerate(td_elements)
 index = next(enum)
@@ -49,7 +56,7 @@ def changePage():
     global enum
     forumPage = Utility.get_page(Utility.generate_next_page_url(other_pagesBaseUrl, current_page_number))
     td_elements = forumPage.find_all('td', class_='')
-    forumcol_elements = forumPage.find_all('td', class_='forumcol')
+    forumcol_elements = forumPage.find_all('td', class_='forumcol ') #newYork with the space
     current_page_number += 20
     enum = enumerate(td_elements)
     print("PAGE CHANGED! NUMBER: ", current_page_number)
@@ -71,7 +78,7 @@ while haltCondition:
     for b_element in b_elements:  # Loop through the <b> elements, inside <b> there is the description of the post
         a_element = b_element.find('a')  # Find the <a> element, inside <a> there is the link to the post
 
-        if postsToIterate > 10:  # Limit the number of posts to analyze
+        if postsToIterate > 2500:  # Limit the number of posts to analyze
             haltCondition = False
             print("Limit of posts to analyze reached!")
             break

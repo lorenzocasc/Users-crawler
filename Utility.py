@@ -6,6 +6,8 @@ headers = {
                   'Chrome/98.0.4758.102 Safari/537.36'
 }
 
+
+
 """
 This function reformats the text of the post.
 
@@ -89,7 +91,7 @@ class Utility:
         if response.status_code == 200:
             return BeautifulSoup(response.text, 'html.parser')
         else:
-            print("Failed to retrieve the webpage. Status code: {response.status_code}")
+            print("Failed to retrieve the webpage. Status code: {}", response.status_code)
             return None
 
     """
