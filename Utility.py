@@ -1,11 +1,88 @@
 from bs4 import BeautifulSoup
 import requests
+import random
 
+
+#headers = {
+#    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) '
+#                  'Chrome/98.0.4758.102 Safari/537.36'
+#}
+
+
+headers_list = [
+    {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'DNT': '1',  # Do Not Track Request Header
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'max-age=0',
+    },
+    {
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.8,image/webp,*/*;q=0.7',
+        'Accept-Language': 'en-GB,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'DNT': '1',  # Do Not Track Request Header
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+    },
+    {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.7,fr;q=0.3',
+        'Accept-Encoding': 'gzip, deflate, lzma, sdch',
+        'DNT': '1',  # Do Not Track Request Header
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Cache-Control': 'no-store',
+        'Pragma': 'no-cache',
+        'TE': 'Trailers'
+    }
+]
+
+
+'''
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/98.0.4758.102 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'DNT': '1',  # Do Not Track Request Header
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Cache-Control': 'max-age=0',
 }
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.8,image/webp,*/*;q=0.7',
+    'Accept-Language': 'en-GB,en;q=0.5',
+    'Accept-Encoding': 'gzip, deflate',
+    'DNT': '1',  # Do Not Track Request Header
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+}
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.7,fr;q=0.3',
+    'Accept-Encoding': 'gzip, deflate, lzma, sdch',
+    'DNT': '1',  # Do Not Track Request Header
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Cache-Control': 'no-store',
+    'Pragma': 'no-cache',
+    'TE': 'Trailers'
+}
+'''
 
 
 """
@@ -87,6 +164,7 @@ class Utility:
 
     @staticmethod
     def get_page(url):
+        headers = random.choice(headers_list)
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             return BeautifulSoup(response.text, 'html.parser')

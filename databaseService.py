@@ -14,7 +14,7 @@ class DatabaseService:
                        'city_provenance': cityOfProvenanceOfUser}
 
         # Adding city of provenance and city requested to the python dictionary
-        file_name = "output_newyork.csv"
+        file_name = "output_japan.csv"
 
         file_exists = True
         try:
@@ -34,7 +34,14 @@ class DatabaseService:
             # Write the data
             writer.writerow(python_dict)
 
-
+    """
+    This function saves a json string in a csv file.
+    
+    Parameters:
+    element (json): Response from chatgpt
+    cityQuestionedInPost (String): The city for which the question is asked.
+    cityOfProvenanceOfUser (String): The city of provenance of the user who made the post.
+    """
     @staticmethod
     def save(element, cityQuestionedInPost, cityOfProvenanceOfUser):
 

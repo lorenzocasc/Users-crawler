@@ -11,7 +11,7 @@ chatGpt = GPT(engine='gpt-3.5-turbo-16k')
 
 #other_pagesBaseUrl = 'https://www.tripadvisor.com/ShowForum-g187768-i20'  # The base url used to change pages (italy english forum)
 
-other_pagesBaseUrl = 'https://www.tripadvisor.com/ShowForum-g28953-i4' # The base url used to change pages (new york english forum)
+other_pagesBaseUrl = 'https://www.tripadvisor.com/ShowForum-g294232-i525' # The base url used to change pages (new york english forum)
 
 # The url of the first to page to crawl from the italian italy forum of tripadvisor
 #first_page_url = 'https://www.tripadvisor.it/ShowForum-g187768-i20-o2840-Italy.html'
@@ -19,7 +19,8 @@ other_pagesBaseUrl = 'https://www.tripadvisor.com/ShowForum-g28953-i4' # The bas
 # The url of the first to page to crawl from the english italy forum of tripadvisor
 #first_page_url = 'https://www.tripadvisor.com/ShowForum-g187768-i20-Italy.html'
 
-first_page_url = 'https://www.tripadvisor.com/ShowForum-g28953-i4-New_York.html'
+first_page_url = 'https://www.tripadvisor.com/ShowForum-g294232-i525-o960-Japan.html'
+
 
 # The base url of the website, used to change pages (italian forum)
 #base_url = "https://www.tripadvisor.it"  # The base url of the website, used to change pages
@@ -27,7 +28,7 @@ first_page_url = 'https://www.tripadvisor.com/ShowForum-g28953-i4-New_York.html'
 # The base url of the website, used to change pages (english forum)
 base_url = "https://www.tripadvisor.com"  # The base url of the website, used to change pages
 
-current_page_number = 0  # The number of the first page of the forum to crawl
+current_page_number = 960  # The number of the first page of the forum to crawl
 
 forumPage = Utility.get_page(first_page_url)  # Send an HTTP GET request to the URL
 
@@ -56,7 +57,7 @@ def changePage():
     global enum
     forumPage = Utility.get_page(Utility.generate_next_page_url(other_pagesBaseUrl, current_page_number))
     td_elements = forumPage.find_all('td', class_='')
-    forumcol_elements = forumPage.find_all('td', class_='forumcol ') #newYork with the space
+    forumcol_elements = forumPage.find_all('td', class_='forumcol') #newYork with the space
     current_page_number += 20
     enum = enumerate(td_elements)
     print("PAGE CHANGED! NUMBER: ", current_page_number)
@@ -85,8 +86,8 @@ while haltCondition:
 
         if a_element:
             try:
-             cityQuestionedInPost = Utility.getNameOfQuestionedCity(
-                forumcol_elements.pop(1))  # Save the name of the city for which the question is asked
+                cityQuestionedInPost = Utility.getNameOfQuestionedCity(
+                    forumcol_elements.pop(1))  # Save the name of the city for which the question is asked
             except Exception as e:
                 cityQuestionedInPost = "NoCity"
                 print("error: ", e)
@@ -123,5 +124,5 @@ while haltCondition:
         changePage()
 
     postsToIterate += 0.5
-    time.sleep(1)
+    #time.sleep(1)
     index = next(enum)
